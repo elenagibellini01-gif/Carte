@@ -10,7 +10,7 @@ const client = new Client({
 	user: "admin",
 	password: "password",
 	database: "appdb",
-});
+}); //connessione al db
 
 app.use(express.json());
 
@@ -36,25 +36,25 @@ app.post("/partite", async (req, res) => {
 
 
 		const partitaResult = await client.query(
-			"INSERT INTO partite DEFAULT VALUES RETURNING id"
+			"INSERT INTO partite DEFAULT VALUES RETURNING id" //crea partita e ritorna id
 		);
 
-		const partitaId = partitaResult.rows[0].id;
+		const partitaId = partitaResult.rows[0].id; //inserisce riga per la partita creata
 		for (const p of partecipanti) {
-			await client.query(
-				`
-				INSERT INTO giocatori_partita
-				(partita_id, nome, punteggio)
-				VALUES ($1, $2, $3)
-				`,
-				[partitaId, p.nome, p.punteggio]
-			);
+				//senza await 
+				await client.query(
+					`INSERT INTO giocatori_partita
+					(partita_id, nome, punteggio)
+					VALUES ($1, $2, $3)`,
+					[partitaId, p.nome, p.punteggio]
+				);
+			
 		}
 
 		res.status(201).json({
 			message: "Partita salvata",
 			partitaId
-		});
+		}); //201 crreated
 
 	} catch (err) {
 		console.error(err);
@@ -66,7 +66,7 @@ app.post("/partite", async (req, res) => {
 
 client.connect()
 	.then(() => console.log("Connected to PostgreSQL"))
-	.catch(err => console.error(err))
+	.catch(err => console.error(err)) 
 
 app.listen(PORT, "0.0.0.0", () => {
 	console.log(`Backend listening on http://localhost:${PORT}`);
