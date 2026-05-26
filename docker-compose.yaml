@@ -17,6 +17,8 @@ services:
             POSTGRES_USER: admin
         ports:
             - "5432:5432"
+        volumes:
+            - pg_data:/var/lib/postgresql/data
 
     backend:
         build:
@@ -29,3 +31,5 @@ services:
             - ./backend/src:/app/src
         depends_on:
             - db
+volumes:
+    pg_data: {}
