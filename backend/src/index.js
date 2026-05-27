@@ -4,6 +4,7 @@ const {Client}= require("pg")
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 const client = new Client({
 	host: "db", //quello del docker-compose
 	port: 5432,
@@ -15,55 +16,6 @@ const client = new Client({
 client.connect()
 	.then(() => console.log("Connected to PostgreSQL"))
 	.catch(err => console.error(err)) //connessione db
-
-const inizializzaSchema = async () => {
-	try {
-		await client.query(`
-			CREATE TABLE IF NOT EXISTS partite (
-				id SERIAL PRIMARY KEY,
-				created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-				andamento_turni JSONB
-			)
-		`)
-
-		await client.query(`
-			CREATE TABLE IF NOT EXISTS giocatori_partita (
-				id SERIAL PRIMARY KEY,
-				partita_id INT NOT NULL REFERENCES partite(id) ON DELETE CASCADE,
-				nome TEXT NOT NULL,
-				punteggio INT NOT NULL DEFAULT 0
-			)
-		`)
-
-		await client.query(`
-			ALTER TABLE partite
-			ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-		`)
-
-		await client.query(`
-			ALTER TABLE partite
-			ADD COLUMN IF NOT EXISTS andamento_turni JSONB
-		`)
-
-		await client.query(`
-			CREATE TABLE IF NOT EXISTS partecipanti (
-				id SERIAL PRIMARY KEY,
-				nome TEXT UNIQUE NOT NULL
-			)
-		`)
-
-		await client.query(`
-			INSERT INTO partecipanti (nome)
-			SELECT DISTINCT nome
-			FROM giocatori_partita
-			ON CONFLICT (nome) DO NOTHING
-		`)
-	} catch (err) {
-		console.error("Errore inizializzazione schema", err)
-	}
-}
-
-inizializzaSchema() //crea tab
 
 app.use(express.json()); //express legge json (HTTP)
 //middleware per abilitare CORS

@@ -20,12 +20,37 @@ services:
         volumes:
             - pg_data:/var/lib/postgresql/data
 
+    db-commenti: 
+        image: postgres:16
+        environment:
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: postgres
+            POSTGRES_USER: admin
+        ports:
+            - "5433:5432" 
+        volumes:
+            - pg_data_commenti:/var/lib/postgresql/data
+
+    social:
+            build:
+                context: ./social
+                dockerfile: Dockerfile
+            ports:
+                - "3001:3001"
+                
+            working_dir: /app
+            volumes:
+                - ./social/src:/app/src
+            depends_on:
+                - db-commenti
+
     backend:
         build:
             context: ./backend
             dockerfile: Dockerfile
         ports:
             - "3000:3000"
+            - "50051:50051"
         working_dir: /app
         volumes:
             - ./backend/src:/app/src
@@ -33,3 +58,4 @@ services:
             - db
 volumes:
     pg_data: {}
+    pg_data_commenti: {}

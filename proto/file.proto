@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package game; //contenitore di nomi
+
+service GameService { //elenco dei metodi grpc disponibili
+  rpc GetPlayers (GetPlayersRequest) returns (GetPlayersResponse);
+
+  
+}
+
+message get_players_Request{
+  int32 id = 1; 
+}
+
+message get_players_Response {
+  repeated string players = 1; //tipo nome_campo= numero;
+}
